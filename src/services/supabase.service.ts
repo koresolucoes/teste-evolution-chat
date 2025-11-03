@@ -11,11 +11,15 @@ export class SupabaseService {
   private supabase: SupabaseClient;
 
   constructor() {
-    const supabaseUrl = 'https://ahhseskrpybaqlqqcdve.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoaHNlc2tycHliYXFscXFjZHZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNDU2NTAsImV4cCI6MjA2NTcyMTY1MH0.YGd2HcO16zCHixxhxBq8gf3bIY-HbOC77l9vEiMAjSA';
+    const supabaseUrl = process.env['SUPABASE_URL'];
+    const supabaseKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
-    // The original code checked for environment variables which are not available
-    // in this applet environment. Hardcoding the provided credentials fixes the connection.
+    if (!supabaseUrl || !supabaseKey) {
+      const errorMessage = 'Supabase URL and Key are not configured. Please set SUPABASE_URL and SUPABASE_KEY environment variables.';
+      console.error(`FATAL: ${errorMessage}`);
+      throw new Error(errorMessage);
+    }
+
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
@@ -25,7 +29,7 @@ export class SupabaseService {
     const { data, error } = await this.supabase.from('agents').select('*');
     if (error) {
       console.error('Error fetching agents:', error);
-      return [];
+      throw error;
     }
     return data as Agent[];
   }
@@ -64,7 +68,7 @@ export class SupabaseService {
     const { data, error } = await this.supabase.from('patients').select('*');
     if (error) {
       console.error('Error fetching patients:', error);
-      return [];
+      throw error;
     }
     return data as Patient[];
   }

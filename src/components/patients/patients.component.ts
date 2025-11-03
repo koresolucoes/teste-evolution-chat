@@ -29,44 +29,56 @@ const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patient_code' | 'id' | 'created_at'> 
         </div>
       </div>
 
-      <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <table class="min-w-full leading-normal">
-          <thead>
-            <tr>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Código</th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre Completo</th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teléfono</th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Última Consulta</th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (patient of filteredPatients(); track patient.id) {
+      @if (isLoading()) {
+        <div class="flex justify-center items-center p-8 bg-white shadow-md rounded-lg">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <p class="ml-4 text-gray-600">Cargando pacientes...</p>
+        </div>
+      } @else if (loadingError()) {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md shadow-md" role="alert">
+          <p class="font-bold">Error al Cargar Pacientes</p>
+          <p>{{ loadingError() }}</p>
+        </div>
+      } @else {
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+          <table class="min-w-full leading-normal">
+            <thead>
               <tr>
-                <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.patient_code }}</p>
-                </td>
-                <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.full_name }}</p>
-                </td>
-                <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.phone }}</p>
-                </td>
-                <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.last_consultation }}</p>
-                </td>
-                <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-right">
-                  <button (click)="openViewPatientModal(patient)" class="text-indigo-600 hover:text-indigo-900">Ver Detalles</button>
-                </td>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Código</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre Completo</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teléfono</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Última Consulta</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
               </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" class="text-center py-10 text-gray-500">No se encontraron pacientes.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              @for (patient of filteredPatients(); track patient.id) {
+                <tr>
+                  <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ patient.patient_code }}</p>
+                  </td>
+                  <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ patient.full_name }}</p>
+                  </td>
+                  <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ patient.phone }}</p>
+                  </td>
+                  <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ patient.last_consultation }}</p>
+                  </td>
+                  <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-right">
+                    <button (click)="openViewPatientModal(patient)" class="text-indigo-600 hover:text-indigo-900">Ver Detalles</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="text-center py-10 text-gray-500">No se encontraron pacientes.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
 
     <!-- Patient Modal -->
@@ -122,6 +134,8 @@ export class PatientsComponent {
   private supabaseService = inject(SupabaseService);
 
   patients = signal<Patient[]>([]);
+  isLoading = signal(true);
+  loadingError = signal<string | null>(null);
   searchTerm = signal('');
   
   modalMode = signal<'hidden' | 'view' | 'create'>('hidden');
@@ -144,8 +158,17 @@ export class PatientsComponent {
   }
 
   async loadPatients(): Promise<void> {
-    const patients = await this.supabaseService.getPatients();
-    this.patients.set(patients);
+    this.isLoading.set(true);
+    this.loadingError.set(null);
+    try {
+      const patients = await this.supabaseService.getPatients();
+      this.patients.set(patients);
+    } catch(e: any) {
+      this.loadingError.set('No se pudieron cargar los pacientes. Verifique la conexión y la configuración.');
+      console.error(e);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   onSearch(event: Event): void {
