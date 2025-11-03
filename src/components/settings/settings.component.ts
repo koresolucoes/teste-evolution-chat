@@ -110,7 +110,7 @@ export class SettingsComponent implements OnInit {
 
     const existingInstance = this.whatsappService.instance();
     if (existingInstance) {
-        this.instanceName.set(existingInstance.instanceName);
+        this.instanceName.set(existingInstance.instance_name);
     }
   }
 
@@ -127,7 +127,7 @@ export class SettingsComponent implements OnInit {
 
     const currentInstance = this.whatsappService.instance();
     // If instance name hasn't changed, we assume we're just updating global settings
-    if (currentInstance && currentInstance.instanceName === this.instanceName()) {
+    if (currentInstance && currentInstance.instance_name === this.instanceName()) {
         this.saveStatus.set({ status: 'success', message: 'Configuración global guardada.' });
         this.isSaving.set(false);
         await this.whatsappService.loadInstance(); 

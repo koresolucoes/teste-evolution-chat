@@ -1,8 +1,8 @@
 export interface WhatsappInstance {
   id: string;
-  instanceName: string;
+  instance_name: string;
   apikey: string;
-  ownerNumber?: string;
+  owner_number?: string;
   status: 'created' | 'connecting' | 'connected' | 'disconnected';
   createdAt: string;
 }

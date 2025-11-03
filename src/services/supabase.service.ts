@@ -97,7 +97,8 @@ export class SupabaseService {
     return data || null;
   }
 
-  async saveWhatsappInstance(instanceData: Omit<WhatsappInstance, 'id' | 'createdAt'>): Promise<WhatsappInstance | null> {
+  // FIX: Corrected Omit type from 'createdAt' to 'created_at' to match the WhatsappInstance model.
+  async saveWhatsappInstance(instanceData: Omit<WhatsappInstance, 'id' | 'created_at'>): Promise<WhatsappInstance | null> {
     // Assuming 'instance_name' is the unique constraint for upserting.
     const { data, error } = await this.supabase
       .from('whatsapp_instances')

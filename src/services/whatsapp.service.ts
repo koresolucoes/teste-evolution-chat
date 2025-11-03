@@ -39,7 +39,7 @@ export class WhatsappService {
   private async checkInitialConnectionStatus(instance: WhatsappInstance): Promise<void> {
     try {
       const connectionState = await firstValueFrom(
-        this.evolutionApi.getConnectionState(instance.apikey, instance.instanceName)
+        this.evolutionApi.getConnectionState(instance.apikey, instance.instance_name)
       );
       if (connectionState?.instance.state === 'open') {
         this.status.set('connected');
@@ -63,7 +63,7 @@ export class WhatsappService {
     this.qrCodeString.set(null);
 
     try {
-      const response = await firstValueFrom(this.evolutionApi.connect(instance.apikey, instance.instanceName));
+      const response = await firstValueFrom(this.evolutionApi.connect(instance.apikey, instance.instance_name));
       if (response && response.code) {
         this.qrCodeString.set(response.code);
         this.startPolling();
@@ -82,7 +82,7 @@ export class WhatsappService {
 
     this.stopPolling();
     try {
-      await firstValueFrom(this.evolutionApi.logout(instance.apikey, instance.instanceName));
+      await firstValueFrom(this.evolutionApi.logout(instance.apikey, instance.instance_name));
       this.status.set('disconnected');
     } catch (e) {
       console.error('Error disconnecting:', e);
@@ -98,7 +98,7 @@ export class WhatsappService {
 
     interval(this.pollingInterval).pipe(
       takeUntil(this.stopPolling$),
-      switchMap(() => this.evolutionApi.getConnectionState(instance.apikey, instance.instanceName))
+      switchMap(() => this.evolutionApi.getConnectionState(instance.apikey, instance.instance_name))
     ).subscribe(state => {
       if (state?.instance.state === 'open') {
         this.status.set('connected');
