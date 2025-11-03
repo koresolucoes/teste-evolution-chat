@@ -1,0 +1,125 @@
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Agentes IA</h2>
+    <button (click)="openNewAgentModal()" class="bg-primary-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-300 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Nuevo Agente
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    @for (agent of agents(); track agent.id) {
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col hover:shadow-lg transition-shadow duration-300">
+        <div class="flex justify-between items-start">
+          <h3 class="text-xl font-bold text-gray-800">{{ agent.name }}</h3>
+          <span 
+            class="px-3 py-1 text-xs font-semibold rounded-full"
+            [class]="agent.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+            {{ agent.status === 'active' ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <p class="text-gray-600 mt-2 flex-grow">{{ agent.description }}</p>
+        <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-end space-x-3">
+          <button (click)="openEditAgentModal(agent)" class="text-gray-500 hover:text-gray-800 font-medium">Editar</button>
+          <button (click)="openTestModal(agent)" class="bg-primary-100 text-primary-700 font-bold py-2 px-4 rounded-lg hover:bg-primary-200 transition-colors duration-300">Probar Agente</button>
+        </div>
+      </div>
+    } @empty {
+        <div class="col-span-1 md:col-span-2 bg-white rounded-xl shadow-md p-8 text-center text-gray-500">
+            <p>No hay agentes creados todavía.</p>
+            <p class="mt-2">Haz clic en "Nuevo Agente" para empezar.</p>
+        </div>
+    }
+  </div>
+</div>
+
+<!-- Test Modal -->
+@if (isTestModalOpen() && selectedAgentForTest(); as agent) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold text-gray-800">Probar: {{ agent.name }}</h3>
+        <button (click)="closeTestModal()" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Instrucción Base (Prompt del Sistema)</label>
+        <textarea readonly class="mt-1 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm p-3 h-32 text-sm text-gray-600 focus:ring-0 focus:outline-none">{{ agent.systemPrompt }}</textarea>
+      </div>
+
+      <div class="mt-4">
+        <label for="userMessage" class="block text-sm font-medium text-gray-700">Mensaje de Usuario (Prueba)</label>
+        <input [value]="testUserMessage()" (input)="onTestUserMessageChange($event)" id="userMessage" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500" placeholder="Ej: Hola, quiero agendar una cita">
+      </div>
+      
+      <div class="mt-6 flex justify-end">
+        <button (click)="sendTestMessage()" [disabled]="isLoadingTest()" class="bg-primary-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-700 transition-colors duration-300 disabled:bg-primary-300 disabled:cursor-not-allowed flex items-center">
+            @if(isLoadingTest()) {
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Procesando...</span>
+            } @else {
+                <span>Enviar</span>
+            }
+        </button>
+      </div>
+
+      @if (testResponse()) {
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 class="font-semibold text-gray-700">Respuesta del Agente:</h4>
+            <p class="mt-2 text-gray-800 whitespace-pre-wrap">{{ testResponse() }}</p>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Create/Edit Agent Modal -->
+@if (isAgentModalOpen() && editingAgent(); as agent) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl transform transition-all">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">{{ 'id' in agent ? 'Editar Agente' : 'Nuevo Agente' }}</h3>
+        <button (click)="closeAgentModal()" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      
+      <form (submit)="$event.preventDefault(); saveAgent()">
+        <div class="space-y-4">
+          <div>
+            <label for="agentName" class="block text-sm font-medium text-gray-700">Nombre del Agente</label>
+            <input [value]="agent.name" (input)="onAgentFormChange('name', $event.target.value)" id="agentName" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500" required>
+          </div>
+          <div>
+            <label for="agentDesc" class="block text-sm font-medium text-gray-700">Descripción</label>
+            <input [value]="agent.description" (input)="onAgentFormChange('description', $event.target.value)" id="agentDesc" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500" required>
+          </div>
+          <div>
+            <label for="agentPrompt" class="block text-sm font-medium text-gray-700">Instrucción Base (Prompt)</label>
+            <textarea [value]="agent.systemPrompt" (input)="onAgentFormChange('systemPrompt', $event.target.value)" id="agentPrompt" rows="5" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Estado</label>
+            <select [value]="agent.status" (change)="onAgentFormChange('status', $event.target.value)" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+              <option value="active">Activo</option>
+              <option value="inactive">Inactivo</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" (click)="closeAgentModal()" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors">Cancelar</button>
+          <button type="submit" class="bg-primary-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-700 transition-colors">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

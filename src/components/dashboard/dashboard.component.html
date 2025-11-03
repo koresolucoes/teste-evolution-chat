@@ -1,0 +1,59 @@
+
+<div>
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    @for (stat of stats; track stat.title) {
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300">
+        <div class="flex justify-between items-start">
+          <div class="flex flex-col">
+            <p class="text-gray-500 font-medium">{{ stat.title }}</p>
+            <p class="text-4xl font-bold text-gray-800 mt-2">{{ stat.value }}</p>
+          </div>
+          <div class="bg-primary-100 text-primary-600 rounded-full p-3" [innerHTML]="stat.icon"></div>
+        </div>
+        <div class="flex items-center mt-4">
+          <span 
+            class="text-sm font-semibold"
+            [class]="stat.changeType === 'increase' ? 'text-green-500' : 'text-red-500'">
+            {{ stat.change }}
+          </span>
+          <span class="text-sm text-gray-500 ml-2">vs. período anterior</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-4">Actividad Reciente</h3>
+    <ul class="divide-y divide-gray-200">
+        <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                    <span class="text-green-600 font-bold">AC</span>
+                </div>
+                <p class="text-gray-700">Cita agendada para <span class="font-semibold">Ana Castillo</span></p>
+            </div>
+            <p class="text-gray-500 text-sm">Hace 5 min</p>
+        </li>
+        <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    <span class="text-blue-600 font-bold">JP</span>
+                </div>
+                <p class="text-gray-700">Paciente nuevo registrado: <span class="font-semibold">Juan Pérez</span></p>
+            </div>
+            <p class="text-gray-500 text-sm">Hace 22 min</p>
+        </li>
+        <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                    <span class="text-purple-600 font-bold">AR</span>
+                </div>
+                <p class="text-gray-700">Recordatorio de cita enviado a <span class="font-semibold">Ana Rodriguez</span></p>
+            </div>
+            <p class="text-gray-500 text-sm">Hace 1 hora</p>
+        </li>
+    </ul>
+  </div>
+</div>

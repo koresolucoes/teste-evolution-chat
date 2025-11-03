@@ -1,0 +1,104 @@
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Pacientes</h2>
+    <button (click)="openNewPatientModal()" class="bg-primary-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-300 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+      Nuevo Paciente
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md">
+    <div class="p-4 border-b border-gray-200">
+      <input 
+        type="text" 
+        [value]="searchTerm()"
+        (input)="onSearch($event)"
+        placeholder="Buscar por nombre, código o teléfono..."
+        class="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+      >
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="p-4 font-semibold text-gray-600">Código</th>
+            <th class="p-4 font-semibold text-gray-600">Nombre Completo</th>
+            <th class="p-4 font-semibold text-gray-600">Teléfono</th>
+            <th class="p-4 font-semibold text-gray-600">Última Consulta</th>
+            <th class="p-4 font-semibold text-gray-600">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (patient of filteredPatients; track patient.patientCode) {
+            <tr class="hover:bg-gray-50 transition-colors duration-200">
+              <td class="p-4 text-gray-800 font-mono text-sm">{{ patient.patientCode }}</td>
+              <td class="p-4 text-gray-800 font-medium">{{ patient.fullName }}</td>
+              <td class="p-4 text-gray-600">{{ patient.phone }}</td>
+              <td class="p-4 text-gray-600">{{ patient.lastConsultation }}</td>
+              <td class="p-4">
+                <a (click)="openViewPatientModal(patient)" class="text-primary-600 hover:text-primary-800 font-medium cursor-pointer">Ver Ficha</a>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+                <td colspan="5" class="text-center p-8 text-gray-500">
+                    No se encontraron pacientes.
+                </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Patient Modal (View/Create) -->
+@if (modalMode() !== 'hidden' && activePatient(); as patient) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl transform transition-all">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">
+          @switch(modalMode()) {
+            @case('view') { Ficha del Paciente }
+            @case('create') { Nuevo Paciente }
+          }
+        </h3>
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <form (submit)="$event.preventDefault(); savePatient()">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Código de Paciente</label>
+            <input [value]="patient.patientCode" type="text" readonly class="mt-1 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm p-2 text-gray-600">
+          </div>
+          <div>
+            <label for="fullName" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+            <input [value]="patient.fullName" (input)="onPatientFormChange('fullName', $event.target.value)" [readOnly]="modalMode() === 'view'" id="fullName" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" [class.bg-gray-100]="modalMode() === 'view'">
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700">Teléfono</label>
+            <input [value]="patient.phone" (input)="onPatientFormChange('phone', $event.target.value)" [readOnly]="modalMode() === 'view'" id="phone" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" [class.bg-gray-100]="modalMode() === 'view'">
+          </div>
+           <div>
+            <label for="lastConsultation" class="block text-sm font-medium text-gray-700">Última Consulta</label>
+            <input [value]="patient.lastConsultation" (input)="onPatientFormChange('lastConsultation', $event.target.value)" [readOnly]="modalMode() === 'view'" id="lastConsultation" type="date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" [class.bg-gray-100]="modalMode() === 'view'">
+          </div>
+          <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700">Historial Médico (Notas Clave)</label>
+            <textarea [value]="patient.medicalHistoryNotes" (input)="onPatientFormChange('medicalHistoryNotes', $event.target.value)" [readOnly]="modalMode() === 'view'" id="notes" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" [class.bg-gray-100]="modalMode() === 'view'"></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end">
+          @if (modalMode() === 'create') {
+            <button type="submit" class="bg-primary-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-700 transition-colors">Guardar Paciente</button>
+          } @else {
+            <button type="button" (click)="closeModal()" class="bg-primary-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-700 transition-colors">Cerrar</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+}

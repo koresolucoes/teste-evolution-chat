@@ -1,0 +1,5 @@
+{
+  "name": "Asistente Clínico IA",
+  "description": "A SaaS portal for clinics and health professionals to create and manage AI chatbot agents for patient care, integrated with WhatsApp.",
+  "requestFramePermissions": []
+}
