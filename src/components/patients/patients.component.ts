@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, signal, WritableSignal, inject, computed } from '@angular/core';
 import { Patient } from '../../models/patient.model';
 import { SupabaseService } from '../../services/supabase.service';
@@ -75,7 +74,7 @@ const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patientCode' | 'id' | 'createdAt'> = 
       <div class="fixed inset-0 bg-black bg-opacity-50 z-40" (click)="closeModal()"></div>
       <div class="fixed inset-0 z-50 flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
-          <form (submit)="$event.preventDefault(); if (modalMode() === 'create') { savePatient() }">
+          <form (submit)="$event.preventDefault(); savePatient()">
             <div class="p-6 border-b">
               <h3 class="text-xl font-semibold text-gray-800">
                 @if (modalMode() === 'create') { Nuevo Paciente }
