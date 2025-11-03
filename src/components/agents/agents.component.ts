@@ -4,12 +4,12 @@ import { Agent } from '../../models/agent.model';
 import { GeminiService } from '../../services/gemini.service';
 import { SupabaseService } from '../../services/supabase.service';
 
-const NEW_AGENT_TEMPLATE: Omit<Agent, 'id' | 'createdAt'> = {
+const NEW_AGENT_TEMPLATE: Omit<Agent, 'id' | 'created_at'> = {
   name: '',
   description: '',
   status: 'inactive',
-  systemPrompt: '',
-  knowledgeBaseFiles: []
+  system_prompt: '',
+  knowledge_base_files: []
 };
 
 @Component({
@@ -125,7 +125,7 @@ const NEW_AGENT_TEMPLATE: Omit<Agent, 'id' | 'createdAt'> = {
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">System Prompt</label>
-                    <textarea rows="8" [value]="editingAgent()!.systemPrompt" (input)="onAgentFormChange('systemPrompt', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-mono text-sm" required></textarea>
+                    <textarea rows="8" [value]="editingAgent()!.system_prompt" (input)="onAgentFormChange('system_prompt', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-mono text-sm" required></textarea>
                 </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-2">
@@ -154,7 +154,7 @@ export class AgentsComponent {
 
   // Edit/Create Modal State
   isAgentModalOpen = signal(false);
-  editingAgent: WritableSignal<Omit<Agent, 'id' | 'createdAt'> | Agent | null> = signal(null);
+  editingAgent: WritableSignal<Omit<Agent, 'id' | 'created_at'> | Agent | null> = signal(null);
   isEditing = computed(() => {
     const agent = this.editingAgent();
     return !!agent && 'id' in agent;
@@ -197,7 +197,7 @@ export class AgentsComponent {
     this.testResponse.set(null);
 
     const agent = this.selectedAgentForTest()!;
-    const response = await this.geminiService.generateTestResponse(agent.systemPrompt, this.testUserMessage());
+    const response = await this.geminiService.generateTestResponse(agent.system_prompt, this.testUserMessage());
 
     this.testResponse.set(response);
     this.isLoadingTest.set(false);
@@ -234,7 +234,7 @@ export class AgentsComponent {
     this.closeAgentModal();
   }
 
-  onAgentFormChange(field: keyof Omit<Agent, 'id' | 'createdAt'>, value: string | string[]): void {
+  onAgentFormChange(field: keyof Omit<Agent, 'id' | 'created_at'>, value: string | string[]): void {
     this.editingAgent.update(agent => {
       if (!agent) return null;
       return { ...agent, [field]: value };

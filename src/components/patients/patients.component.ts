@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, signal, WritableSignal, inject, com
 import { Patient } from '../../models/patient.model';
 import { SupabaseService } from '../../services/supabase.service';
 
-const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patientCode' | 'id' | 'createdAt'> = {
-  fullName: '',
+const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patient_code' | 'id' | 'created_at'> = {
+  full_name: '',
   phone: '',
-  lastConsultation: new Date().toISOString().split('T')[0], // Today's date
-  medicalHistoryNotes: '',
+  last_consultation: new Date().toISOString().split('T')[0], // Today's date
+  medical_history_notes: '',
 };
 
 @Component({
@@ -44,16 +44,16 @@ const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patientCode' | 'id' | 'createdAt'> = 
             @for (patient of filteredPatients(); track patient.id) {
               <tr>
                 <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.patientCode }}</p>
+                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.patient_code }}</p>
                 </td>
                 <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.fullName }}</p>
+                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.full_name }}</p>
                 </td>
                 <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
                   <p class="text-gray-900 whitespace-no-wrap">{{ patient.phone }}</p>
                 </td>
                 <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.lastConsultation }}</p>
+                  <p class="text-gray-900 whitespace-no-wrap">{{ patient.last_consultation }}</p>
                 </td>
                 <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-right">
                   <button (click)="openViewPatientModal(patient)" class="text-indigo-600 hover:text-indigo-900">Ver Detalles</button>
@@ -85,11 +85,11 @@ const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patientCode' | 'id' | 'createdAt'> = 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Código de Paciente</label>
-                        <input type="text" [value]="activePatient()!.patientCode" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-500 bg-gray-200" readonly>
+                        <input type="text" [value]="activePatient()!.patient_code" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-500 bg-gray-200" readonly>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Nombre Completo</label>
-                        <input type="text" [value]="activePatient()!.fullName" (input)="onPatientFormChange('fullName', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" [readonly]="modalMode() === 'view'">
+                        <input type="text" [value]="activePatient()!.full_name" (input)="onPatientFormChange('full_name', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" [readonly]="modalMode() === 'view'">
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
@@ -97,12 +97,12 @@ const NEW_PATIENT_TEMPLATE: Omit<Patient, 'patientCode' | 'id' | 'createdAt'> = 
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Última Consulta</label>
-                        <input type="date" [value]="activePatient()!.lastConsultation" (input)="onPatientFormChange('lastConsultation', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" [readonly]="modalMode() === 'view'">
+                        <input type="date" [value]="activePatient()!.last_consultation" (input)="onPatientFormChange('last_consultation', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" [readonly]="modalMode() === 'view'">
                     </div>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Historial Médico</label>
-                    <textarea rows="5" [value]="activePatient()!.medicalHistoryNotes" (input)="onPatientFormChange('medicalHistoryNotes', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" [readonly]="modalMode() === 'view'"></textarea>
+                    <textarea rows="5" [value]="activePatient()!.medical_history_notes" (input)="onPatientFormChange('medical_history_notes', $any($event.target).value)" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" [readonly]="modalMode() === 'view'"></textarea>
                 </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-2">
@@ -133,8 +133,8 @@ export class PatientsComponent {
       return this.patients();
     }
     return this.patients().filter(p =>
-      p.fullName.toLowerCase().includes(term) ||
-      p.patientCode.toLowerCase().includes(term) ||
+      p.full_name.toLowerCase().includes(term) ||
+      p.patient_code.toLowerCase().includes(term) ||
       p.phone.includes(term)
     );
   });
@@ -155,7 +155,7 @@ export class PatientsComponent {
 
   openNewPatientModal(): void {
     const newPatient = {
-      patientCode: `ZN-${Math.floor(1000 + Math.random() * 9000)}`,
+      patient_code: `ZN-${Math.floor(1000 + Math.random() * 9000)}`,
       ...NEW_PATIENT_TEMPLATE
     };
     this.activePatient.set(newPatient as Patient);
@@ -172,7 +172,7 @@ export class PatientsComponent {
     this.activePatient.set(null);
   }
 
-  onPatientFormChange(field: keyof Omit<Patient, 'id' | 'createdAt'>, value: string): void {
+  onPatientFormChange(field: keyof Omit<Patient, 'id' | 'created_at'>, value: string): void {
     this.activePatient.update(patient => {
       if (!patient) return null;
       return { ...patient, [field]: value };

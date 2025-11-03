@@ -30,7 +30,7 @@ export class SupabaseService {
     return data as Agent[];
   }
 
-  async addAgent(agentData: Omit<Agent, 'id' | 'createdAt'>): Promise<Agent | null> {
+  async addAgent(agentData: Omit<Agent, 'id' | 'created_at'>): Promise<Agent | null> {
     const { data, error } = await this.supabase
       .from('agents')
       .insert([agentData])
@@ -69,7 +69,7 @@ export class SupabaseService {
     return data as Patient[];
   }
 
-  async addPatient(patientData: Omit<Patient, 'id' | 'createdAt'>): Promise<Patient | null> {
+  async addPatient(patientData: Omit<Patient, 'id' | 'created_at'>): Promise<Patient | null> {
     const { data, error } = await this.supabase
       .from('patients')
       .insert([patientData])

@@ -1,9 +1,9 @@
 export interface Patient {
   id?: string;
-  patientCode: string;
-  fullName: string;
+  patient_code: string;
+  full_name: string;
   phone: string;
-  lastConsultation: string;
-  medicalHistoryNotes: string;
-  createdAt?: string;
+  last_consultation: string;
+  medical_history_notes: string;
+  created_at?: string;
 }

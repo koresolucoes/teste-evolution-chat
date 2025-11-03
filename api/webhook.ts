@@ -75,12 +75,12 @@ async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
 
     // 6. Construct Prompt and generate AI response
     const fullPrompt = `
-      ${agent.systemPrompt}
+      ${agent.system_prompt}
 
       ---
       CONTEXTO DEL PACIENTE:
-      Nombre: ${patient.fullName}
-      Notas del Historial Médico: ${patient.medicalHistoryNotes}
+      Nombre: ${patient.full_name}
+      Notas del Historial Médico: ${patient.medical_history_notes}
       ---
       MENSAJE RECIBIDO DEL PACIENTE:
       "${userMessage}"

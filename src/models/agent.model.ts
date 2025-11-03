@@ -3,7 +3,7 @@ export interface Agent {
   name: string;
   description: string;
   status: 'active' | 'inactive';
-  systemPrompt: string;
-  knowledgeBaseFiles?: string[];
-  createdAt?: string;
+  system_prompt: string;
+  knowledge_base_files?: string[];
+  created_at?: string;
 }
