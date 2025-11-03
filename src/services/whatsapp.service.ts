@@ -16,6 +16,7 @@ export class WhatsappService {
   instance: WritableSignal<WhatsappInstance | null> = signal(null);
   status = signal<ConnectionStatus>('initial');
   qrCodeString = signal<string | null>(null);
+  pairingCode = signal<string | null>(null);
   
   private stopPolling$ = new Subject<void>();
   private pollingInterval = 5000; // 5 seconds
@@ -61,11 +62,16 @@ export class WhatsappService {
     
     this.status.set('connecting');
     this.qrCodeString.set(null);
+    this.pairingCode.set(null);
 
     try {
       const response = await firstValueFrom(this.evolutionApi.connect(instance.apikey, instance.instance_name));
       if (response && response.code) {
         this.qrCodeString.set(response.code);
+        if (response.pairingCode) {
+            // Format pairing code for better readability, e.g., XXXX-XXXX
+            this.pairingCode.set(response.pairingCode.match(/.{1,4}/g)?.join('-') ?? response.pairingCode);
+        }
         this.startPolling();
       } else {
         this.status.set('error');
@@ -81,6 +87,8 @@ export class WhatsappService {
     if (!instance) return;
 
     this.stopPolling();
+    this.qrCodeString.set(null);
+    this.pairingCode.set(null);
     try {
       await firstValueFrom(this.evolutionApi.logout(instance.apikey, instance.instance_name));
       this.status.set('disconnected');
@@ -103,6 +111,7 @@ export class WhatsappService {
       if (state?.instance.state === 'open') {
         this.status.set('connected');
         this.qrCodeString.set(null);
+        this.pairingCode.set(null);
         this.stopPolling();
       }
     });
