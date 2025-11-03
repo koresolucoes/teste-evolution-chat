@@ -29,13 +29,13 @@ export class InstanceSetupService {
       
       console.log('[InstanceSetup] Payload de respuesta de Evolution API:', response);
 
-      if (response?.hash?.apikey) {
-        console.log('[InstanceSetup] La respuesta de la API es válida y contiene una apikey.');
+      if (response?.hash && typeof response.hash === 'string') {
+        console.log('[InstanceSetup] La respuesta de la API es válida y contiene una apikey en la propiedad hash.');
         
         // Step 2: Save instance-specific data to Supabase
         const instanceData: Omit<WhatsappInstance, 'id' | 'createdAt'> = {
           instanceName: response.instance.instanceName,
-          instanceApiKey: response.hash.apikey,
+          instanceApiKey: response.hash,
           status: 'created',
         };
 
@@ -56,7 +56,7 @@ export class InstanceSetupService {
         }
 
       } else {
-        console.warn('[InstanceSetup] La respuesta de la API de Evolution no contiene la apikey esperada.');
+        console.warn('[InstanceSetup] La respuesta de la API de Evolution no contiene la apikey esperada en la propiedad `hash`.');
         if (response?.instance?.instanceName) {
             const specificError = `La instancia "${instanceName}" se creó o ya existía, pero la API no devolvió la clave necesaria. Esto puede ocurrir si el nombre de la instancia ya está en uso. Por favor, pruebe con un nombre diferente.`;
             console.error(`[InstanceSetup] ERROR: ${specificError}`);

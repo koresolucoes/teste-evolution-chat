@@ -4,9 +4,7 @@ export interface CreateInstanceResponse {
     instanceId: string;
     status: string;
   };
-  hash: {
-    apikey: string;
-  };
+  hash: string;
   settings: object;
 }
 
