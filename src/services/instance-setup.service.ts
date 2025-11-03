@@ -35,7 +35,7 @@ export class InstanceSetupService {
         // Step 2: Save instance-specific data to Supabase
         const instanceData: Omit<WhatsappInstance, 'id' | 'createdAt'> = {
           instanceName: response.instance.instanceName,
-          instanceApiKey: response.hash,
+          apikey: response.hash,
           status: 'created',
         };
 
