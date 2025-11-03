@@ -21,11 +21,11 @@ class ManualNoopNgZone implements NgZone {
   readonly onError = new EventEmitter<any>(false);
 
   run<T>(fn: (...args: any[]) => T, applyThis?: any, applyArgs?: any[]): T {
-    return fn.apply(applyThis, applyArgs);
+    return fn.apply(applyThis, applyArgs ?? []);
   }
 
   runGuarded<T>(fn: (...args: any[]) => T, applyThis?: any, applyArgs?: any[]): T {
-    return fn.apply(applyThis, applyArgs);
+    return fn.apply(applyThis, applyArgs ?? []);
   }
 
   runOutsideAngular<T>(fn: (...args: any[]) => T): T {
@@ -33,7 +33,7 @@ class ManualNoopNgZone implements NgZone {
   }
 
   runTask<T>(fn: (...args: any[]) => T, applyThis?: any, applyArgs?: any[], taskData?: any): T {
-    return fn.apply(applyThis, applyArgs);
+    return fn.apply(applyThis, applyArgs ?? []);
   }
 }
 
