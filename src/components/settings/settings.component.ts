@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
-import { SupabaseService } from '../../services/supabase.service';
-import { WhatsappInstance } from '../../models/whatsapp-instance.model';
 import { WhatsappService } from '../../services/whatsapp.service';
 import { SettingsService } from '../../services/settings.service';
-import { EvolutionApiService } from '../../services/evolution-api.service';
-import { firstValueFrom } from 'rxjs';
+import { InstanceSetupService } from '../../services/instance-setup.service';
 
 @Component({
   selector: 'app-settings',
@@ -92,10 +89,9 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent implements OnInit {
-  private supabase = inject(SupabaseService);
   private whatsappService = inject(WhatsappService);
   private settingsService = inject(SettingsService);
-  private evolutionApi = inject(EvolutionApiService);
+  private instanceSetupService = inject(InstanceSetupService);
 
   // Global settings
   apiUrl = signal('');
@@ -138,43 +134,15 @@ export class SettingsComponent implements OnInit {
         return;
     }
 
-
-    // Proceed to create/re-create instance
+    // Proceed to create/re-create instance via the new service
     try {
-      // 2. Create instance in Evolution API
-      const response = await firstValueFrom(
-        this.evolutionApi.createInstance(this.globalApiKey(), this.instanceName())
+      await this.instanceSetupService.setupInstance(
+        this.globalApiKey(), 
+        this.instanceName()
       );
-
-      if (response?.hash?.apikey) {
-        // 3. Save instance-specific data to Supabase
-        const instanceData: Omit<WhatsappInstance, 'id' | 'createdAt'> = {
-          instanceName: response.instance.instanceName,
-          instanceApiKey: response.hash.apikey,
-          status: 'created',
-        };
-        const savedInstance = await this.supabase.saveWhatsappInstance(instanceData);
-        
-        if (savedInstance) {
-          this.saveStatus.set({ status: 'success' });
-          // 4. Reload instance data in the app state
-          await this.whatsappService.loadInstance();
-        } else {
-          throw new Error('No se pudo guardar la instancia en la base de datos.');
-        }
-
-      } else {
-        // The API response did not contain the required API key.
-        // We provide a more specific error message based on the response content.
-        if (response?.instance?.instanceName) {
-            throw new Error(`La instancia "${this.instanceName()}" se creó o ya existía, pero la API no devolvió la clave necesaria. Esto puede ocurrir si el nombre de la instancia ya está en uso. Por favor, pruebe con un nombre diferente.`);
-        } else {
-            throw new Error('Respuesta inválida de la API de Evolution. La instancia puede haber sido creada, pero no se recibió la clave API para continuar.');
-        }
-      }
-
+      this.saveStatus.set({ status: 'success' });
     } catch(e: any) {
-      console.error('Error during settings save/instance creation:', e);
+      console.error('Error in SettingsComponent while saving:', e);
       this.saveStatus.set({ status: 'error', message: e.message || 'Ocurrió un error inesperado.' });
     } finally {
       this.isSaving.set(false);
