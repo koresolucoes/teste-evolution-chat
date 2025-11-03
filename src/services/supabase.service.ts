@@ -112,4 +112,20 @@ export class SupabaseService {
     }
     return data as WhatsappInstance;
   }
+
+  async updateWebhookSecret(instanceName: string): Promise<WhatsappInstance | null> {
+    const secret = `whsec_${crypto.randomUUID()}`;
+    const { data, error } = await this.supabase
+      .from('whatsapp_instances')
+      .update({ webhook_secret: secret })
+      .eq('instance_name', instanceName)
+      .select()
+      .single();
+  
+    if (error) {
+      console.error('Error updating webhook secret:', error);
+      return null;
+    }
+    return data as WhatsappInstance;
+  }
 }
