@@ -10,8 +10,8 @@ export class GeminiService {
 
   constructor() {
     // process.env is a placeholder for the build environment. The key must be set there.
-    if (process.env && process.env.API_KEY) {
-      this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    if (process.env && process.env['API_KEY']) {
+      this.ai = new GoogleGenAI({ apiKey: process.env['API_KEY'] });
     }
   }
 
@@ -31,7 +31,7 @@ export class GeminiService {
             },
         });
         
-        return response.text;
+        return response.text ?? 'Hubo un error al procesar la respuesta.';
 
     } catch (error) {
       console.error('Error generating content:', error);

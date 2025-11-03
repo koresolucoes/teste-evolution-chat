@@ -5,6 +5,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   // FIX: Implement the main application layout.
   template: `
     <div class="flex h-screen bg-gray-100 font-sans">

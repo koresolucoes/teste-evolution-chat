@@ -5,6 +5,7 @@ import { toCanvas } from 'qrcode';
 
 @Component({
   selector: 'app-whatsapp',
+  standalone: true,
   templateUrl: './whatsapp.component.html',
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,

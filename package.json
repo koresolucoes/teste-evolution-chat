@@ -21,6 +21,7 @@
     "@angular-devkit/build-angular": "^18.1.0",
     "@angular/cli": "^18.1.0",
     "@angular/compiler-cli": "^18.1.0",
+    "@types/qrcode": "^1.5.5",
     "typescript": "~5.5.2"
   }
 }

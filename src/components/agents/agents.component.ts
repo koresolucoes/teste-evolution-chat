@@ -1,5 +1,5 @@
 
-import { ChangeDetectionStrategy, Component, inject, signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, WritableSignal, computed } from '@angular/core';
 import { Agent } from '../../models/agent.model';
 import { GeminiService } from '../../services/gemini.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -105,7 +105,7 @@ const NEW_AGENT_TEMPLATE: Omit<Agent, 'id' | 'createdAt'> = {
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
           <form (submit)="$event.preventDefault(); saveAgent()">
             <div class="p-6 border-b">
-              <h3 class="text-xl font-semibold text-gray-800">{{ 'id' in editingAgent()! ? 'Editar' : 'Nuevo' }} Agente</h3>
+              <h3 class="text-xl font-semibold text-gray-800">{{ isEditing() ? 'Editar' : 'Nuevo' }} Agente</h3>
             </div>
             <div class="p-6 max-h-[70vh] overflow-y-auto">
                 <div class="mb-4">
@@ -155,6 +155,10 @@ export class AgentsComponent {
   // Edit/Create Modal State
   isAgentModalOpen = signal(false);
   editingAgent: WritableSignal<Omit<Agent, 'id' | 'createdAt'> | Agent | null> = signal(null);
+  isEditing = computed(() => {
+    const agent = this.editingAgent();
+    return !!agent && 'id' in agent;
+  });
 
   constructor() {
     this.loadAgents();
