@@ -16,6 +16,7 @@
     "@angular/platform-browser": "^20.3.0",
     "@supabase/supabase-js": "latest",
     "@angular/router": "^20.3.9",
+    "qrcode": "1.5.3",
     "@angular/build": "^20.3.0",
     "@angular/cli": "^20.3.0",
     "@angular/common": "^20.3.0",

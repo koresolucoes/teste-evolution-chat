@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, viewChild, ElementRef, effect } from '@angular/core';
 import { WhatsappService } from '../../services/whatsapp.service';
 import { RouterLink } from '@angular/router';
-
-declare var QRCode: any;
+import { toCanvas } from 'qrcode';
 
 @Component({
   selector: 'app-whatsapp',
@@ -26,18 +25,11 @@ export class WhatsappComponent {
     });
   }
 
-  private generateQrCode(canvas: HTMLCanvasElement, text: string, attempt: number = 1): void {
-    if (typeof QRCode !== 'undefined') {
-      QRCode.toCanvas(canvas, text, { width: 256 }, (error: Error | null) => {
-        if (error) {
-          console.error('QR Code generation failed:', error);
-        }
-      });
-    } else if (attempt <= 5) {
-      // If QRCode is not defined, wait 500ms and retry.
-      setTimeout(() => this.generateQrCode(canvas, text, attempt + 1), 500);
-    } else {
-      console.error('Failed to load QRCode library after several attempts.');
+  private async generateQrCode(canvas: HTMLCanvasElement, text: string): Promise<void> {
+    try {
+      await toCanvas(canvas, text, { width: 256 });
+    } catch (error) {
+      console.error('QR Code generation failed:', error);
     }
   }
 
