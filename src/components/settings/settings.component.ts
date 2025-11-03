@@ -146,7 +146,7 @@ export class SettingsComponent implements OnInit {
         this.evolutionApi.createInstance(this.globalApiKey(), this.instanceName())
       );
 
-      if (response && response.hash.apikey) {
+      if (response?.hash?.apikey) {
         // 3. Save instance-specific data to Supabase
         const instanceData: Omit<WhatsappInstance, 'id' | 'createdAt'> = {
           instanceName: response.instance.instanceName,
@@ -164,16 +164,18 @@ export class SettingsComponent implements OnInit {
         }
 
       } else {
-         throw new Error('Respuesta inválida de la API de Evolution al crear la instancia.');
+        // The API response did not contain the required API key.
+        // We provide a more specific error message based on the response content.
+        if (response?.instance?.instanceName) {
+            throw new Error(`La instancia "${this.instanceName()}" se creó o ya existía, pero la API no devolvió la clave necesaria. Esto puede ocurrir si el nombre de la instancia ya está en uso. Por favor, pruebe con un nombre diferente.`);
+        } else {
+            throw new Error('Respuesta inválida de la API de Evolution. La instancia puede haber sido creada, pero no se recibió la clave API para continuar.');
+        }
       }
 
     } catch(e: any) {
       console.error('Error during settings save/instance creation:', e);
-      let message = e.message || 'Ocurrió un error inesperado.';
-      if (e.message?.includes('is already in use')) {
-        message = `La instancia "${this.instanceName()}" ya existe en Evolution API, pero no está registrada en esta aplicación. Por favor, use un nombre de instancia diferente, o elimine la instancia existente en su servidor de Evolution y vuelva a intentarlo.`;
-      }
-      this.saveStatus.set({ status: 'error', message: message });
+      this.saveStatus.set({ status: 'error', message: e.message || 'Ocurrió un error inesperado.' });
     } finally {
       this.isSaving.set(false);
     }
