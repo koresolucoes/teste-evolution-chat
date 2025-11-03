@@ -33,8 +33,7 @@ export class InstanceSetupService {
         console.log('[InstanceSetup] La respuesta de la API es válida y contiene una apikey en la propiedad hash.');
         
         // Step 2: Save instance-specific data to Supabase
-        // FIX: Updated Omit type to use 'createdAt' to match the model update.
-        const instanceData: Omit<WhatsappInstance, 'id' | 'createdAt'> = {
+        const instanceData: Omit<WhatsappInstance, 'id' | 'created_at'> = {
           instance_name: response.instance.instanceName,
           apikey: response.hash,
           status: 'created',
