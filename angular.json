@@ -3,24 +3,39 @@
   "version": 1,
   "newProjectRoot": "",
   "projects": {
-    "app": {
+    "asistente-clinico-ia": {
       "projectType": "application",
       "root": "",
-      "sourceRoot": "./",
+      "sourceRoot": ".",
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": {
-              "base": "./dist",
-              "browser": "."
-            },
+            "outputPath": "dist/asistente-clinico-ia",
+            "index": "index.html",
             "browser": "index.tsx",
-            "tsConfig": "tsconfig.json"
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              "favicon.ico"
+            ],
+            "styles": [],
+            "scripts": []
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
               "outputHashing": "all"
             },
             "development": {
@@ -30,21 +45,6 @@
             }
           },
           "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "options": {
-            "port": 3000
-          },
-          "configurations": {
-            "production": {
-              "buildTarget": "app:build:production"
-            },
-            "development": {
-              "buildTarget": "app:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
         }
       }
     }
