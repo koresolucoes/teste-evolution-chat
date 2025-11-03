@@ -31,7 +31,7 @@ export class InstanceSetupService {
 
       const apiKey = (typeof response?.hash === 'string') ? response.hash : (response?.hash as { apikey: string })?.apikey;
 
-      if (apiKey && typeof apiKey === 'string') {
+      if (response && apiKey && typeof apiKey === 'string') {
         console.log('[InstanceSetup] La respuesta de la API es válida y contiene una apikey.');
         
         // Step 2: Save instance-specific data to Supabase
