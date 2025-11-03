@@ -8,7 +8,6 @@ declare var QRCode: any;
   selector: 'app-whatsapp',
   templateUrl: './whatsapp.component.html',
   imports: [RouterLink],
-  // FIX: Corrected typo from 'Change.OnPush' to 'ChangeDetectionStrategy.OnPush'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WhatsappComponent {
@@ -22,11 +21,24 @@ export class WhatsappComponent {
       const qrCodeString = this.whatsappService.qrCodeString();
 
       if (canvas && qrCodeString) {
-        QRCode.toCanvas(canvas, qrCodeString, { width: 256 }, (error: Error | null) => {
-          if (error) console.error(error);
-        });
+        this.generateQrCode(canvas, qrCodeString);
       }
     });
+  }
+
+  private generateQrCode(canvas: HTMLCanvasElement, text: string, attempt: number = 1): void {
+    if (typeof QRCode !== 'undefined') {
+      QRCode.toCanvas(canvas, text, { width: 256 }, (error: Error | null) => {
+        if (error) {
+          console.error('QR Code generation failed:', error);
+        }
+      });
+    } else if (attempt <= 5) {
+      // If QRCode is not defined, wait 500ms and retry.
+      setTimeout(() => this.generateQrCode(canvas, text, attempt + 1), 500);
+    } else {
+      console.error('Failed to load QRCode library after several attempts.');
+    }
   }
 
   connect(): void {
