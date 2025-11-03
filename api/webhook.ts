@@ -15,18 +15,18 @@ const allowCors = (fn: (req: VercelRequest, res: VercelResponse) => Promise<void
     res.status(200).end();
     return;
   }
-  return await fn(req, res);
+  await fn(req, res);
 };
 
-async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   try {
     // 1. Initialize Clients from Environment Variables
     const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env['SUPABASE_URL']!,
+      process.env['SUPABASE_SERVICE_ROLE_KEY']!
     );
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-    const evolutionApiUrl = process.env.EVOLUTION_API_URL!;
+    const ai = new GoogleGenAI({ apiKey: process.env['GEMINI_API_KEY']! });
+    const evolutionApiUrl = process.env['EVOLUTION_API_URL']!;
 
     // 2. Get and validate webhook payload
     const body = req.body;
@@ -35,7 +35,8 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Only process new text messages from users (not from the bot)
     if (body.event !== 'messages.upsert' || data.key.fromMe || !data.message?.conversation) {
-      return res.status(200).json({ message: "Event ignored" });
+      res.status(200).json({ message: "Event ignored" });
+      return;
     }
 
     // 3. Security: Verify Webhook Secret sent by Evolution API
@@ -48,7 +49,8 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (instanceError || !instance || !instance.webhook_secret || instance.webhook_secret !== webhookSecret) {
       console.error('Unauthorized: Invalid instance or webhook secret.');
-      return res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
+      return;
     }
 
     // 4. Process the message content and sender
@@ -61,12 +63,14 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!patient) {
       console.warn(`Patient not found for phone: ${userPhone}`);
-      return res.status(200).json({ message: "Patient not found" });
+      res.status(200).json({ message: "Patient not found" });
+      return;
     }
 
     if (!agent) {
        console.error('No active AI agent found.');
-       return res.status(200).json({ message: "No active agent configuration found" });
+       res.status(200).json({ message: "No active agent configuration found" });
+       return;
     }
 
     // 6. Construct Prompt and generate AI response
@@ -86,8 +90,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     const replyText = geminiResponse.text;
 
     // 7. Send the AI-generated reply back to the user via Evolution API
-    const sendUrl = `${evolutionApiUrl}/message/sendText/${instanceName}`;
-    await fetch(sendUrl, {
+    await fetch(`${evolutionApiUrl}/message/sendText/${instanceName}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': instance.apikey },
       body: JSON.stringify({
@@ -97,11 +100,13 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       }),
     });
     
-    return res.status(200).json({ success: true, reply: replyText });
+    res.status(200).json({ success: true, reply: replyText });
+    return;
 
   } catch (error: any) {
     console.error('Error in webhook handler:', error.message);
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
+    return;
   }
 }
 
